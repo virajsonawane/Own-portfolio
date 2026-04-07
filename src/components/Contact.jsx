@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { site } from '../data/siteContent'
 import { FadeIn } from './FadeIn'
+import { useSectionParallax } from '../hooks/useSectionParallax'
 
 export function Contact() {
   const [status, setStatus] = useState('idle')
+  const reduce = useReducedMotion()
+  const { ref, ySlow, yMed, yFast, scaleBlob, opacityMesh } = useSectionParallax()
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -24,10 +27,32 @@ export function Contact() {
 
   return (
     <section
+      ref={ref}
       id="contact"
-      className="scroll-mt-24 bg-zinc-50/80 px-4 py-20 dark:bg-zinc-900/40 sm:px-6"
+      className="relative scroll-mt-24 overflow-hidden bg-zinc-50/80 px-4 py-20 dark:bg-zinc-900/40 sm:px-6"
       aria-labelledby="contact-heading"
     >
+      {/* Strong scroll-linked motion graphics behind the form */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_90%_55%_at_50%_0%,rgba(236,72,153,0.18),transparent)] dark:bg-[radial-gradient(ellipse_90%_55%_at_50%_0%,rgba(236,72,153,0.24),transparent)]"
+        style={{ opacity: opacityMesh }}
+        aria-hidden
+      />
+      <motion.div
+        className="pointer-events-none absolute -left-44 top-32 -z-10 h-[min(520px,85vw)] w-[min(520px,85vw)] rounded-full bg-gradient-to-br from-fuchsia-500/30 via-violet-500/20 to-transparent blur-3xl"
+        style={{ y: yFast, scale: scaleBlob }}
+        aria-hidden
+      />
+      <motion.div
+        className="pointer-events-none absolute -right-44 top-16 -z-10 h-[min(520px,85vw)] w-[min(520px,85vw)] rounded-full bg-gradient-to-bl from-violet-500/28 via-fuchsia-500/18 to-transparent blur-3xl"
+        style={{ y: yMed }}
+        aria-hidden
+      />
+      <motion.div
+        className="pointer-events-none absolute bottom-8 left-1/2 -z-10 h-72 w-[120%] -translate-x-1/2 rounded-[100%] bg-gradient-to-t from-fuchsia-500/10 to-transparent blur-2xl dark:from-fuchsia-500/16"
+        style={{ y: ySlow }}
+        aria-hidden
+      />
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <h2
@@ -67,10 +92,25 @@ export function Contact() {
         </FadeIn>
 
         <FadeIn className="mt-10" delay={0.06}>
-          <form
-            onSubmit={handleSubmit}
-            className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-8"
+          <motion.div
+            className="relative rounded-2xl p-[1px]"
+            animate={
+              reduce
+                ? undefined
+                : {
+                    opacity: [0.6, 1, 0.7],
+                  }
+            }
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(139,92,246,0.55), rgba(236,72,153,0.55), rgba(139,92,246,0.55))',
+            }}
           >
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-2xl bg-white p-6 shadow-sm dark:bg-zinc-950 sm:p-8"
+            >
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="block sm:col-span-1">
                 <span className="text-base font-medium text-zinc-700 dark:text-zinc-300">Name</span>
@@ -109,9 +149,10 @@ export function Contact() {
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-violet-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
+                whileHover={reduce ? undefined : { scale: 1.04, y: -1 }}
+                whileTap={reduce ? undefined : { scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 340, damping: 18 }}
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 text-base font-semibold text-white shadow-2xl shadow-violet-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
               >
                 Send message
               </motion.button>
@@ -121,7 +162,8 @@ export function Contact() {
                 </p>
               )}
             </div>
-          </form>
+            </form>
+          </motion.div>
         </FadeIn>
 
         <FadeIn className="mt-10" delay={0.1}>

@@ -1,9 +1,21 @@
 import { motion, useReducedMotion } from 'framer-motion'
+import { useEffect } from 'react'
 import { site } from '../data/siteContent'
 
 export function Footer() {
   const year = new Date().getFullYear()
   const reduce = useReducedMotion()
+
+  useEffect(() => {
+    // DMCA helper needs the badge element to exist (React renders it after HTML parse).
+    const existing = document.querySelector('script[data-dmca-helper="true"]')
+    if (existing) return
+    const s = document.createElement('script')
+    s.src = 'https://images.dmca.com/Badges/DMCABadgeHelper.min.js'
+    s.defer = true
+    s.dataset.dmcaHelper = 'true'
+    document.body.appendChild(s)
+  }, [])
 
   return (
     <motion.footer

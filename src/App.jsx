@@ -15,7 +15,7 @@ function AppContent() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="min-h-svh"
+      className="min-h-svh bg-gradient-to-b from-white via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-900"
     >
       <a
         href="#hero"
@@ -25,7 +25,7 @@ function AppContent() {
       </a>
       <ScrollProgress />
       <Navbar />
-      <main>
+      <main className="pt-24 sm:pt-28">
         <Hero />
         <About />
         <Projects />
