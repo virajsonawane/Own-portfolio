@@ -1,10 +1,4 @@
-import {
-  motion,
-  useMotionTemplate,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { site } from '../data/siteContent'
 import { FadeIn } from './FadeIn'
@@ -70,11 +64,7 @@ export function Projects() {
             Projects
           </h2>
           <p className="mt-3 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl">
-            Selected projects—add or edit entries in{' '}
-            <code className="rounded bg-zinc-200/80 px-2 py-0.5 text-base dark:bg-zinc-800">
-              src/data/siteContent.js
-            </code>
-            .
+            A few projects I’ve worked on recently.
           </p>
         </FadeIn>
 
@@ -99,28 +89,29 @@ function DepthCard({ project, reduce }) {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({
     target: ref,
-    // When the card enters the viewport from below -> 0, when it's centered-ish -> ~0.6-0.8
-    offset: ['start 95%', 'end 35%'],
+    // Start earlier (reduces perceived delay) and finish before mid-viewport.
+    offset: ['start 92%', 'start 55%'],
   })
 
-  const scale = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.86, 1])
-  const y = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [60, 0])
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.9, 1])
-  const rotateX = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [18, 0])
-  const blur = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [14, 0])
-  const filter = useMotionTemplate`blur(${blur}px)`
+  const spring = useSpring(scrollYProgress, { stiffness: 260, damping: 34, mass: 0.25 })
+  const p = reduce ? scrollYProgress : spring
+
+  const scale = useTransform(p, [0, 1], reduce ? [1, 1] : [0.9, 1])
+  const y = useTransform(p, [0, 1], reduce ? [0, 0] : [40, 0])
+  const opacity = useTransform(p, [0, 0.25, 1], [0.0, 0.85, 1])
+  // Flatten quickly so it’s NOT diagonal at mid-scroll.
+  const rotateX = useTransform(p, [0, 0.55, 1], reduce ? [0, 0, 0] : [14, 0, 0])
 
   return (
     <motion.li
       ref={ref}
       variants={item}
-      className="transform-gpu [transform-style:preserve-3d]"
+      className="transform-gpu [transform-style:preserve-3d] [transform-origin:center]"
       style={{
         opacity,
         y,
         rotateX,
         scale,
-        filter,
       }}
     >
       <ProjectCard project={project} reduce={reduce} />
