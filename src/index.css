@@ -8,8 +8,8 @@
 
 html {
   scroll-behavior: smooth;
-  /* ~18px base when the browser default is 16px — improves readability for body copy and all rem-based Tailwind sizes */
-  font-size: 112.5%;
+  /* Reset to default (16px base) for smaller overall typography. */
+  font-size: 100%;
 }
 
 body {
