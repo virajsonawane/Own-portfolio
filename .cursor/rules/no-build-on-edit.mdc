@@ -1,0 +1,10 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Don't run `npm run build` automatically
+
+- Do **not** run `npm run build` after edits by default.
+- Only run `npm run build` when the user explicitly asks, or when it's required to unblock a concrete issue.
+- Prefer `npm run lint` (or targeted lints) when verification is needed.

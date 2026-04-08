@@ -10,6 +10,10 @@ html {
   scroll-behavior: smooth;
   /* Reset to default (16px base) for smaller overall typography. */
   font-size: 100%;
+  /* Prevent layout shift when the vertical scrollbar appears on scroll (Windows). */
+  scrollbar-gutter: stable;
+  /* Fallback for older browsers: always reserve scrollbar space. */
+  overflow-y: scroll;
 }
 
 body {
