@@ -2,7 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useState,
 } from 'react'
 
@@ -16,7 +16,7 @@ export function ThemeProvider({ children }) {
     return window.localStorage.getItem(STORAGE_KEY) || 'dark'
   })
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement
     if (theme === 'dark') {
       root.classList.add('dark')

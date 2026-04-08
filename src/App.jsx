@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ThemeProvider } from './context/ThemeContext'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import { ScrollProgress } from './components/ScrollProgress'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
@@ -10,12 +10,19 @@ import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
 
 function AppContent() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="min-h-svh bg-gradient-to-b from-white via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-900"
+      className={
+        isDark
+          ? 'min-h-svh bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 text-zinc-100'
+          : 'min-h-svh bg-gradient-to-b from-white via-white to-zinc-50 text-zinc-900'
+      }
     >
       <a
         href="#hero"

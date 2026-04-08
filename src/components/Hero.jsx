@@ -1,4 +1,5 @@
 import { motion, useReducedMotion, useTransform } from 'framer-motion'
+import { useTheme } from '../context/ThemeContext'
 import { site } from '../data/siteContent'
 import { useTypewriter } from '../hooks/useTypewriter'
 import { useSectionParallax } from '../hooks/useSectionParallax'
@@ -8,6 +9,8 @@ function scrollToId(id) {
 }
 
 export function Hero() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const typed = useTypewriter(site.typingPhrases)
   const {
     ref,
@@ -87,7 +90,11 @@ export function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.08 }}
-          className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-600 bg-clip-text text-5xl font-bold tracking-tight text-transparent dark:from-white dark:via-zinc-100 dark:to-zinc-400 sm:text-6xl md:text-7xl"
+          className={
+            isDark
+              ? 'text-5xl font-bold tracking-tight text-zinc-50 sm:text-6xl md:text-7xl'
+              : 'bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-600 bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-6xl md:text-7xl'
+          }
         >
           {site.name}
         </motion.h1>
