@@ -1,62 +1,49 @@
-import { motion, useReducedMotion } from 'framer-motion'
 import { site } from '../data/siteContent'
 import { FadeIn } from './FadeIn'
+import { TextReveal } from './TextReveal'
 
 export function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-24 px-4 py-20 sm:px-6"
+      className="scroll-mt-24 px-4 py-24 sm:px-6 sm:py-32"
       aria-labelledby="about-heading"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         <FadeIn>
-          <h2
-            id="about-heading"
-            className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl"
-          >
-            About me
-          </h2>
-          <p className="mt-4 max-w-2xl text-pretty text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl">
-            {site.about.bio}
+          <p className="font-display text-xs font-medium uppercase tracking-[0.3em] text-neutral-500 dark:text-white/50">
+            {site.about.eyebrow}
           </p>
         </FadeIn>
+        <TextReveal
+          id="about-heading"
+          text={site.about.heading}
+          className="mt-3 font-display text-5xl font-bold uppercase tracking-tight text-neutral-900 dark:text-white sm:text-6xl md:text-7xl"
+        />
 
-        <FadeIn className="mt-12" delay={0.08}>
-          <h3 className="text-base font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-            Skills
-          </h3>
-          <ul className="mt-6 space-y-5" role="list">
-            {site.about.skills.map((skill) => (
-              <li key={skill.name}>
-                <SkillBar name={skill.name} level={skill.level} />
-              </li>
-            ))}
-          </ul>
-        </FadeIn>
+        <div className="mt-12 grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
+          <FadeIn>
+            <p className="text-pretty text-xl font-light leading-relaxed text-neutral-600 dark:text-white/60 sm:text-2xl">
+              {site.about.bio}
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.1}>
+            <dl className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-white/10 dark:border-white/10">
+              {site.about.facts.map((fact) => (
+                <div key={fact.label} className="grid gap-1 py-4 sm:grid-cols-[100px_1fr] sm:gap-4">
+                  <dt className="font-display text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400 dark:text-white/40">
+                    {fact.label}
+                  </dt>
+                  <dd className="text-base font-medium text-neutral-800 dark:text-white/85">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </FadeIn>
+        </div>
       </div>
     </section>
-  )
-}
-
-function SkillBar({ name, level }) {
-  const reduce = useReducedMotion()
-
-  return (
-    <div>
-      <div className="mb-2 flex justify-between text-base">
-        <span className="font-medium text-zinc-800 dark:text-zinc-200">{name}</span>
-        <span className="tabular-nums text-zinc-500 dark:text-zinc-500">{level}%</span>
-      </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-        <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-400"
-          initial={reduce ? { width: `${level}%` } : { width: 0 }}
-          whileInView={reduce ? undefined : { width: `${level}%` }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </div>
-    </div>
   )
 }

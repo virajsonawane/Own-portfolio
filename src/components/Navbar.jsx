@@ -3,19 +3,16 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Menu, Moon, Sun, X } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { site } from '../data/siteContent'
+import { scrollToId } from '../lib/smoothScroll'
 
 const links = [
   { id: 'hero', label: 'Home' },
   { id: 'about', label: 'About' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'projects', label: 'Work' },
+  { id: 'skills', label: 'Skills' },
   { id: 'resume', label: 'Resume' },
   { id: 'contact', label: 'Contact' },
 ]
-
-function scrollToId(id) {
-  const el = document.getElementById(id)
-  el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 
 export function Navbar() {
   const { theme, toggleTheme } = useTheme()
@@ -29,7 +26,6 @@ export function Navbar() {
   const [centerShift, setCenterShift] = useState(0)
   const x = useMotionValue(0)
   const xAnimRef = useRef(null)
-  const shiftSpeedPxPerSec = 520
 
   const orderedIds = useMemo(() => links.map((l) => l.id), [])
 
@@ -42,17 +38,24 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Constant-speed x animation (no easing or spring artifacts).
+  // Spring glide; velocity carries over when the direction flips mid-shift.
   useEffect(() => {
-    if (reduce) return undefined
-
     const target = scrolled ? centerShift : 0
-    const current = x.get()
-    const distance = Math.abs(target - current)
-    const duration = Math.min(1.8, Math.max(0.7, distance / shiftSpeedPxPerSec))
+
+    if (reduce) {
+      x.set(target)
+      return undefined
+    }
 
     xAnimRef.current?.stop?.()
-    xAnimRef.current = animate(x, target, { duration, ease: 'linear' })
+    xAnimRef.current = animate(x, target, {
+      type: 'spring',
+      stiffness: 150,
+      damping: 26,
+      mass: 0.7,
+      velocity: x.getVelocity(),
+      restDelta: 0.5,
+    })
 
     return () => xAnimRef.current?.stop?.()
   }, [centerShift, reduce, scrolled, x])
@@ -173,15 +176,16 @@ export function Navbar() {
           className={[
             'absolute right-0 top-0 w-fit flex-none flex items-center justify-between gap-3 rounded-full border px-3 py-2',
             'backdrop-blur-lg backdrop-saturate-150',
-            'transition-all duration-300',
+            // Transition surface styles only — transform belongs to the x spring.
+            'transition-[background-color,border-color,box-shadow] duration-300',
             glass,
           ].join(' ')}
           style={{ x }}
         >
-          {/* Gradient edge + glow */}
+          {/* Soft edge glow */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-violet-500/25 via-fuchsia-500/18 to-violet-500/25 opacity-80 blur-xl"
+            className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-blue-500/15 via-white/10 to-blue-500/15 opacity-80 blur-xl"
           />
 
           {/* Center: links (desktop) */}
@@ -228,7 +232,7 @@ export function Navbar() {
               className={[
                 'inline-flex h-11 w-11 items-center justify-center rounded-full',
                 'border border-white/15 bg-white/16 text-zinc-900 backdrop-blur',
-                'transition-all duration-300 hover:bg-white/22 hover:shadow-xl hover:shadow-violet-500/15',
+                'transition-all duration-300 hover:bg-white/22 hover:shadow-xl hover:shadow-blue-500/15',
                 'dark:border-white/12 dark:bg-black/45 dark:text-zinc-100',
               ].join(' ')}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}

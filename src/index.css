@@ -3,7 +3,20 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Clash Display', 'Outfit', sans-serif;
+  --font-serif-accent: 'Instrument Serif', Georgia, serif;
+
+  --animate-marquee: marquee 28s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 :root {
@@ -20,8 +33,12 @@
       6 6;
 }
 
-html {
+/* CSS smooth scroll only as fallback when Lenis is not driving (e.g. reduced motion). */
+html:not(.lenis) {
   scroll-behavior: smooth;
+}
+
+html {
   /* Reset to default (16px base) for smaller overall typography. */
   font-size: 100%;
   /* Prevent layout shift when the vertical scrollbar appears on scroll (Windows). */
@@ -51,4 +68,32 @@ a,
 input[type='button'],
 input[type='submit'] {
   cursor: var(--app-cursor), pointer;
+}
+
+/* Lenis smooth scroll (classes are added to <html> while Lenis is active) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Subtle dotted-grid background used by hero and footer */
+.bg-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, currentColor 14%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
 }

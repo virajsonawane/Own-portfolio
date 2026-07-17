@@ -1,178 +1,134 @@
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useRef } from 'react'
+import { ArrowUpRight, Check } from 'lucide-react'
 import { site } from '../data/siteContent'
 import { FadeIn } from './FadeIn'
-import { useSectionParallax } from '../hooks/useSectionParallax'
-
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.08 },
-  },
-}
-
-const item = {
-  hidden: {},
-  show: { transition: { duration: 0.01 } },
-}
+import { TextReveal } from './TextReveal'
+import { scrollToId } from '../lib/smoothScroll'
 
 export function Projects() {
-  const reduce = useReducedMotion()
-  const { ref, ySlow, yMed, yFast, rotateOrb, scaleBlob, opacityMesh } =
-    useSectionParallax()
-
   return (
     <section
-      ref={ref}
       id="projects"
-      className="relative scroll-mt-24 overflow-hidden bg-zinc-50/80 px-4 py-20 dark:bg-zinc-900/40 sm:px-6"
+      className="scroll-mt-24 overflow-hidden bg-neutral-50 px-4 py-24 dark:bg-neutral-900/40 sm:px-6 sm:py-32"
       aria-labelledby="projects-heading"
     >
-      {/* Stronger scroll-linked motion graphics */}
-      <motion.div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(139,92,246,0.22),transparent)] dark:bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(139,92,246,0.32),transparent)]"
-        style={{ opacity: opacityMesh }}
-        aria-hidden
-      />
-      <motion.div
-        className="pointer-events-none absolute -left-40 top-12 -z-10 h-[min(520px,85vw)] w-[min(520px,85vw)] rounded-full bg-gradient-to-br from-violet-500/35 via-fuchsia-500/25 to-transparent blur-3xl dark:from-violet-400/30"
-        style={{ y: yFast, scale: scaleBlob }}
-        aria-hidden
-      />
-      <motion.div
-        className="pointer-events-none absolute -right-40 top-40 -z-10 h-[min(520px,85vw)] w-[min(520px,85vw)] rounded-full bg-gradient-to-bl from-fuchsia-500/30 via-violet-500/20 to-transparent blur-3xl"
-        style={{ y: yMed }}
-        aria-hidden
-      />
-      <motion.div
-        className="pointer-events-none absolute bottom-10 left-1/2 -z-10 h-72 w-[120%] -translate-x-1/2 rounded-[100%] bg-gradient-to-t from-violet-500/10 to-transparent blur-2xl dark:from-violet-500/18"
-        style={{ y: ySlow }}
-        aria-hidden
-      />
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-28 -z-10 h-[min(360px,70vw)] w-[min(360px,70vw)] -translate-x-1/2 rounded-full border border-violet-400/15 dark:border-violet-400/25"
-        style={{ rotate: rotateOrb, y: ySlow }}
-        aria-hidden
-      />
-
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <FadeIn>
-          <h2
-            id="projects-heading"
-            className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl"
-          >
-            Projects
-          </h2>
-          <p className="mt-3 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl">
-            A few projects I’ve worked on recently.
+          <p className="font-display text-xs font-medium uppercase tracking-[0.3em] text-neutral-500 dark:text-white/50">
+            {site.showcase.eyebrow}
+          </p>
+        </FadeIn>
+        <TextReveal
+          id="projects-heading"
+          text={site.showcase.heading}
+          className="mt-3 font-display text-5xl font-bold uppercase tracking-tight text-neutral-900 dark:text-white sm:text-6xl md:text-7xl"
+        />
+        <FadeIn>
+          <p className="mt-4 max-w-2xl text-lg font-light text-neutral-500 dark:text-white/50 sm:text-xl">
+            {site.showcase.intro}
           </p>
         </FadeIn>
 
-        <motion.ul
-          className="mt-12 grid gap-6 [perspective:1200px] sm:grid-cols-2 lg:grid-cols-3"
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-60px' }}
-          role="list"
-        >
-          {site.projects.map((project) => (
-            <DepthCard key={project.title} project={project} reduce={reduce} />
+        <div className="mt-14 space-y-10">
+          {site.projects.map((project, i) => (
+            <ShowcaseCard key={project.title} project={project} index={i} />
           ))}
-        </motion.ul>
+        </div>
       </div>
     </section>
   )
 }
 
-function DepthCard({ project, reduce }) {
+function ShowcaseCard({ project, index }) {
+  const reduce = useReducedMotion()
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({
     target: ref,
-    // Start earlier (reduces perceived delay) and finish before mid-viewport.
-    offset: ['start 92%', 'start 55%'],
+    offset: ['start 95%', 'start 50%'],
   })
-
-  const spring = useSpring(scrollYProgress, { stiffness: 260, damping: 34, mass: 0.25 })
+  const spring = useSpring(scrollYProgress, { stiffness: 240, damping: 32, mass: 0.3 })
   const p = reduce ? scrollYProgress : spring
+  const y = useTransform(p, [0, 1], reduce ? [0, 0] : [60, 0])
+  const scale = useTransform(p, [0, 1], reduce ? [1, 1] : [0.96, 1])
+  const opacity = useTransform(p, [0, 0.3, 1], [0, 0.9, 1])
 
-  const scale = useTransform(p, [0, 1], reduce ? [1, 1] : [0.9, 1])
-  const y = useTransform(p, [0, 1], reduce ? [0, 0] : [40, 0])
-  const opacity = useTransform(p, [0, 0.25, 1], [0.0, 0.85, 1])
-  // Flatten quickly so it’s NOT diagonal at mid-scroll.
-  const rotateX = useTransform(p, [0, 0.55, 1], reduce ? [0, 0, 0] : [14, 0, 0])
+  const isAnchor = project.href?.startsWith('#')
 
-  return (
-    <motion.li
-      ref={ref}
-      variants={item}
-      className="transform-gpu [transform-style:preserve-3d] [transform-origin:center]"
-      style={{
-        opacity,
-        y,
-        rotateX,
-        scale,
-      }}
-    >
-      <ProjectCard project={project} reduce={reduce} />
-    </motion.li>
-  )
-}
-
-function ProjectCard({ project, reduce }) {
   return (
     <motion.article
-      whileHover={
-        reduce
-          ? undefined
-          : {
-              y: -10,
-              rotateX: 6,
-              rotateY: -6,
-              transition: { type: 'spring', stiffness: 260, damping: 18 },
-            }
-      }
-      whileTap={reduce ? undefined : { scale: 0.985 }}
-      className="group relative flex h-full transform-gpu flex-col rounded-2xl border border-zinc-200/80 bg-white p-7 shadow-sm transition-shadow hover:border-violet-300/60 hover:shadow-2xl hover:shadow-violet-500/15 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-violet-500/35"
+      ref={ref}
+      style={{ y, scale, opacity }}
+      className="group relative grid transform-gpu gap-10 rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm transition-colors hover:border-blue-400/40 dark:border-white/10 dark:bg-neutral-950 dark:hover:border-blue-500/30 sm:p-12 lg:grid-cols-[1.5fr_1fr]"
     >
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-violet-500/0 via-fuchsia-500/0 to-violet-500/0 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 group-hover:from-violet-500/10 group-hover:via-fuchsia-500/10 group-hover:to-violet-500/5 dark:group-hover:from-violet-500/15 dark:group-hover:via-fuchsia-500/12"
-        animate={
-          reduce
-            ? undefined
-            : { opacity: [0.0, 0.22, 0.14], scale: [1, 1.02, 1] }
-        }
-        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">{project.title}</h3>
-      <p className="mt-2 flex-1 text-base leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-lg">
-        {project.description}
-      </p>
-      <ul className="mt-4 flex flex-wrap gap-2" aria-label="Tech stack">
-        {project.stack.map((tech) => (
-          <li
-            key={tech}
-            className="rounded-lg bg-violet-500/10 px-2.5 py-1 text-sm font-medium text-violet-700 dark:text-violet-300"
+      <div>
+        <div className="flex items-baseline gap-4">
+          <span className="font-display text-sm font-medium text-neutral-300 dark:text-white/20">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <h3 className="font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
+            {project.title}
+          </h3>
+        </div>
+
+        <p className="mt-5 text-lg font-light leading-relaxed text-neutral-600 dark:text-white/60">
+          {project.description}
+        </p>
+
+        <ul className="mt-7 space-y-3" role="list">
+          {project.highlights?.map((point) => (
+            <li key={point} className="flex items-start gap-3">
+              <span className="mt-1 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-blue-500/10 text-blue-500" aria-hidden>
+                <Check className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-base text-neutral-700 dark:text-white/70">{point}</span>
+            </li>
+          ))}
+        </ul>
+
+        {isAnchor ? (
+          <button
+            type="button"
+            onClick={() => scrollToId(project.href.slice(1))}
+            className="mt-8 inline-flex items-center gap-1.5 text-base font-semibold text-neutral-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
           >
-            {tech}
-          </li>
-        ))}
-      </ul>
-      <a
-        href={project.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-5 inline-flex items-center text-base font-semibold text-violet-600 transition group-hover:gap-2 dark:text-violet-400"
-      >
-        {project.liveLabel}
-        <span
-          className="ml-1 inline-block transition group-hover:translate-x-1"
+            {project.liveLabel}
+            <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
+          </button>
+        ) : (
+          <a
+            href={project.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex items-center gap-1.5 text-base font-semibold text-neutral-900 transition hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
+          >
+            {project.liveLabel}
+            <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
+          </a>
+        )}
+      </div>
+
+      <div className="flex flex-col justify-between gap-8 lg:border-l lg:border-neutral-200 lg:pl-10 dark:lg:border-white/10">
+        <div>
+          <p className="font-display text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-400 dark:text-white/40">
+            Tech stack
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label="Tech stack" role="list">
+            {project.stack.map((tech) => (
+              <li
+                key={tech}
+                className="rounded-full border border-neutral-200 bg-neutral-50 px-3.5 py-1.5 text-sm font-medium text-neutral-700 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
+              >
+                {tech}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div
+          className="hidden h-40 rounded-2xl bg-gradient-to-br from-blue-500/10 via-neutral-100 to-transparent dark:via-white/5 lg:block"
           aria-hidden
-        >
-          →
-        </span>
-      </a>
+        />
+      </div>
     </motion.article>
   )
 }

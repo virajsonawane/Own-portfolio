@@ -1,6 +1,16 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect } from 'react'
 import { site } from '../data/siteContent'
+import { scrollToId } from '../lib/smoothScroll'
+
+const footerLinks = [
+  { id: 'hero', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'projects', label: 'Work' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'resume', label: 'Resume' },
+  { id: 'contact', label: 'Contact' },
+]
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -19,66 +29,84 @@ export function Footer() {
 
   return (
     <motion.footer
-      initial={reduce ? false : { opacity: 0, y: 24 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      initial={reduce ? false : { opacity: 0 }}
+      whileInView={reduce ? undefined : { opacity: 1 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="border-t border-zinc-200 px-4 py-10 dark:border-zinc-800 sm:px-6"
+      className="relative overflow-hidden border-t border-neutral-200 px-4 pb-10 pt-16 dark:border-white/10 sm:px-6"
     >
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 sm:flex-row">
-        <p className="text-center text-base text-zinc-500 dark:text-zinc-500">
-          © {year} {site.name}. All rights reserved.
-        </p>
-        <ul className="flex gap-3">
-          {site.contact.social.map((s) => (
-            <li key={s.label}>
-              <motion.a
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                whileHover={{ scale: 1.12, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                className="inline-flex rounded-lg p-2 text-zinc-500 transition-colors hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400"
-              >
-                {s.icon === 'github' ? <GitHubIcon /> : <LinkedInIcon />}
-              </motion.a>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <motion.p
-        initial={reduce ? false : { opacity: 0 }}
-        whileInView={reduce ? undefined : { opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.12, duration: 0.4 }}
-        className="mx-auto mt-6 max-w-5xl text-center text-sm text-zinc-400 dark:text-zinc-600"
-      >
-        {site.footer.note}
-      </motion.p>
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col items-center justify-between gap-8 sm:flex-row sm:items-start">
+          <nav aria-label="Footer">
+            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {footerLinks.map((link) => (
+                <li key={link.id}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToId(link.id)}
+                    className="text-base text-neutral-500 transition hover:text-neutral-900 dark:text-white/50 dark:hover:text-white"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <ul className="flex gap-3" role="list">
+            {site.contact.social.map((s) => (
+              <li key={s.label}>
+                <motion.a
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  whileHover={{ scale: 1.12, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                  className="inline-flex rounded-lg p-2 text-neutral-500 transition-colors hover:bg-blue-500/10 hover:text-blue-600 dark:text-white/50 dark:hover:text-blue-400"
+                >
+                  {s.icon === 'github' ? <GitHubIcon /> : <LinkedInIcon />}
+                </motion.a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <motion.div
-        initial={reduce ? false : { opacity: 0, y: 12 }}
+        <div className="mt-10 flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between">
+          <p className="text-sm text-neutral-500 dark:text-white/40">
+            © {year} {site.name}. All rights reserved.
+          </p>
+          <p className="text-sm text-neutral-400 dark:text-white/30">{site.footer.note}</p>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <a
+            href="https://www.dmca.com/Protection/Status.aspx?ID=3b695953-4ad9-4b3d-ae51-f3107f49cbce"
+            title="DMCA.com Protection Status"
+            className="dmca-badge"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=3b695953-4ad9-4b3d-ae51-f3107f49cbce"
+              alt="DMCA.com Protection Status"
+              loading="lazy"
+            />
+          </a>
+        </div>
+      </div>
+
+      {/* Giant watermark name */}
+      <motion.p
+        initial={reduce ? false : { opacity: 0, y: 40 }}
         whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.18, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto mt-8 flex max-w-5xl justify-center"
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        className="pointer-events-none mt-12 select-none whitespace-nowrap text-center font-display text-[10.5vw] font-bold uppercase leading-[0.8] tracking-[-0.04em] text-neutral-100 dark:text-white/5"
+        aria-hidden
       >
-        <a
-          href="https://www.dmca.com/Protection/Status.aspx?ID=3b695953-4ad9-4b3d-ae51-f3107f49cbce"
-          title="DMCA.com Protection Status"
-          className="dmca-badge"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=3b695953-4ad9-4b3d-ae51-f3107f49cbce"
-            alt="DMCA.com Protection Status"
-            loading="lazy"
-          />
-        </a>
-      </motion.div>
+        {site.footer.bigText}
+      </motion.p>
     </motion.footer>
   )
 }
