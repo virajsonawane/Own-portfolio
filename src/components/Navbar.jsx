@@ -60,25 +60,50 @@ export function Navbar() {
     return () => xAnimRef.current?.stop?.()
   }, [centerShift, reduce, scrolled, x])
 
+  // Scroll-spy: the active section is the last one whose top has crossed a
+  // line 45% down the viewport. Position-based (not IntersectionObserver) so
+  // short sections like Skills win as soon as they reach mid-screen, instead
+  // of the taller previous section holding the highlight.
   useEffect(() => {
-    const sections = orderedIds
-      .map((id) => document.getElementById(id))
-      .filter(Boolean)
+    let ticking = false
 
-    if (!sections.length) return undefined
+    function computeActive() {
+      ticking = false
+      const line = window.scrollY + window.innerHeight * 0.45
 
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0))[0]
-        if (visible?.target?.id) setActive(visible.target.id)
-      },
-      { root: null, threshold: [0.2, 0.35, 0.5], rootMargin: '-30% 0px -55% 0px' },
-    )
+      // Pin the last link when the page is scrolled to the very bottom, so
+      // a short final section still gets highlighted.
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
+      if (atBottom) {
+        setActive(orderedIds[orderedIds.length - 1])
+        return
+      }
 
-    sections.forEach((s) => obs.observe(s))
-    return () => obs.disconnect()
+      let current = orderedIds[0]
+      for (const id of orderedIds) {
+        const el = document.getElementById(id)
+        if (!el) continue
+        const top = el.getBoundingClientRect().top + window.scrollY
+        if (top <= line) current = id
+        else break
+      }
+      setActive(current)
+    }
+
+    function onScroll() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(computeActive)
+    }
+
+    computeActive()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [orderedIds])
 
   useEffect(() => {
